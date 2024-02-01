@@ -1,3 +1,4 @@
+import tkinter as tk
 from vector2 import *
 from basis2 import *
 from screen import *
@@ -38,6 +39,14 @@ class Renderer:
             canvas.create_line(v0.x, v0.y, v1.x, v1.y, fill="gray", width=1, dash=(4,2))
             
             v_begin += 1
+            
+        o = Vector2(0,0)
+        o = self.screen * o
+        i = self.screen * (self.basis.axis1)
+        j = self.screen * (self.basis.axis2)
+        
+        canvas.create_line(o.x, o.y, i.x, i.y, fill="blue", width=2, arrow=tk.LAST)
+        canvas.create_line(o.x, o.y, j.x, j.y, fill="red", width=2, arrow=tk.LAST)
             
     def draw_line(self, canvas, v0: Vector2, v1: Vector2) -> None:
         v0 = (self.basis * v0)

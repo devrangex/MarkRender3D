@@ -1,14 +1,17 @@
 import tkinter as tk
 import math
+import time
 from vector2 import *
 from basis2 import *
 from screen import *
 from renderer import *
+from matrix2 import *
 
 canvas: tk.Canvas = None
 root: tk.Tk = None
 width: int = 800
 height: int = 600
+deg: int = 0
 
 def init():    
     global root, canvas, width, height
@@ -22,7 +25,9 @@ def init():
     
 def draw():
     
-    global root, canvas, width, height
+    global root, canvas, width, height, deg
+    
+    canvas.delete('all')
     
     basis = Basis2()
     screen = Screen()
@@ -31,13 +36,28 @@ def draw():
     grid = Renderer(basis, screen)    
     grid.draw_grid(canvas, 10, 10)
     
-    grid2 = Renderer(Basis2(Vector2(math.cos(math.pi / 4),math.sin(math.pi / 4)), Vector2(-math.sin(math.pi / 4), math.cos(math.pi / 4))), screen)
+    v0 = Vector2(0, 0)
+    v1 = Vector2(1, 1)
+    #grid.draw_line(canvas, v0, v1)   
+    
+    
+    basis2 = Basis2()
+    grid2 = Renderer(basis2, screen)
     grid2.draw_grid(canvas, 10, 10)
     
-    v0 = Vector2(0, 0)
-    v1 = Vector2(1, 0)
-    grid.draw_line(canvas, v0, v1)   
-    grid2.draw_line(canvas, v0, v1)   
+    rad = deg / 180 * math.pi
+    matRot = Matrix2(math.cos(rad), -math.sin(rad), math.sin(rad), math.cos(rad))
+    matScale = Matrix2(2, 0, 0, 1)
+    matFinal = matRot * matScale
+    v0 = matFinal * v0
+    v1 = matFinal * v1
+        
+    
+    #basis2.SetInfo(Vector2(math.cos(rad),math.sin(rad)), Vector2(-math.sin(rad), math.cos(rad)))
+    grid2.draw_line(canvas, v0, v1)
+    
+    deg += 5    
+    root.after(100, draw)
     
     
 def draw_edge():
@@ -59,7 +79,7 @@ def main():
     
     init()
     
-    draw_edge()
+    draw_edge()    
     
     draw()
 
