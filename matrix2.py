@@ -28,10 +28,8 @@ class Matrix2:
         if isinstance(other, Matrix2):
             # Matrix multiplication
             return Matrix2(
-                self._11 * other._11 + self._21 * other._21,
-                self._11 * other._21 + self._21 * other._22,
-                self._12 * other._11 + self._22 * other._21,
-                self._12 * other._21 + self._22 * other._22
+                self._11 * other._11 + self._21 * other._12, self._11 * other._21 + self._21 * other._22,
+                self._12 * other._11 + self._22 * other._12, self._12 * other._21 + self._22 * other._22
             )
         elif isinstance(other, Vector2):
             # Matrix and Vector multiplication
