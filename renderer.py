@@ -1,5 +1,6 @@
 import tkinter as tk
 from vector2 import *
+from vector3 import *
 from basis2 import *
 from screen import *
 
@@ -49,16 +50,20 @@ class Renderer:
         self.canvas.create_line(o.x, o.y, i.x, i.y, fill="blue", width=2, arrow=tk.LAST)
         self.canvas.create_line(o.x, o.y, j.x, j.y, fill="red", width=2, arrow=tk.LAST)
             
-    def draw_line(self, v0: Vector2, v1: Vector2) -> None:
+    def draw_line(self, v0: Vector2, v1: Vector2, dash:bool = False) -> None:
         v0 = (self.basis * v0)
         v1 = (self.basis * v1)
         
         v0 = self.screen * v0
         v1 = self.screen * v1
+        #invZ = v0.z
         
+        #if(dash):
+        #    self.canvas.create_line(v0.x, v0.y, v1.x, v1.y, fill="red", width=2, dash=(2,2))
+        #else:
         self.canvas.create_line(v0.x, v0.y, v1.x, v1.y, fill="gray", width=2)
         
-    def draw_indexed_primitive(self, index_buffer, primiteve_counter, vertex_buffer):
+    def draw_indexed_primitive_line_list(self, index_buffer, primiteve_counter, vertex_buffer):
         i1 = 0
         i2 = 0
         counter = 0
@@ -69,5 +74,30 @@ class Renderer:
             self.draw_line(vertex_buffer[i1], vertex_buffer[i2])
             
             counter += 2
+            
+    def draw_indexed_primitive_line_strip(self, index_buffer, primitive_counter, vertex_buffer: Vector3):
+        i1 = 0
+        i2 = 0
+        i3 = 0
+        counter = 0
+        for i in range(primitive_counter):
+            i1 = index_buffer[counter]
+            i2 = index_buffer[counter+1]
+            i3 = index_buffer[counter+2]
+            
+            u = vertex_buffer[i1] - vertex_buffer[i2]
+            v = vertex_buffer[i1] - vertex_buffer[i3]
+            n = u.cross(v)
+            f = Vector3(0, 0, -1)
+            
+            dash: bool = False
+            if(n.dot(f) > 0):
+                dash = True
+            
+            self.draw_line(vertex_buffer[i1], vertex_buffer[i2], dash)
+            self.draw_line(vertex_buffer[i2], vertex_buffer[i3], dash)
+            self.draw_line(vertex_buffer[i3], vertex_buffer[i1], dash)
+            
+            counter += 3
         
         

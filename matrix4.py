@@ -95,6 +95,20 @@ class Matrix4:
         self._31 = math.sin(rad)
         self._13 = -math.sin(rad)
         self._33 = math.cos(rad)
+        
+    def set_projection(self, near, far, fov, width, height) -> None:
+        self.set_identity()
+        
+        rad = fov / 180 * math.pi
+        d = 1 / math.tan(rad * 0.5)
+        invA = width / height
+        
+        self._11 = d * ( 1 / invA )
+        self._22 = d
+        #self._33 = -1
+        self._33 = (near + far) / (near - far)
+        self._43 = (2 * near * far) / (near - far)
+        self._34 = -1
     
     def __mul__(self, other):
         if isinstance(other, Matrix4):

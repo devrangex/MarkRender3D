@@ -15,6 +15,19 @@ class Vector3:
     def __mul__(self, scalar: int):
         return Vector3(self.x * scalar, self.y * scalar, self.z * scalar)
     
+    def dot(self, right):
+        return self.x * right.x + self.y * right.y + self.z * right.z
+    
+    def cross(self, right):
+        return Vector3(
+            self.y * right.z - self.z * right.y,
+            self.z * right.x - self.x * right.z,
+            self.x * right.y - self.y * right.x
+        )
+        
+    def magnitude(self):
+        return (self.x * self.x + self.y * self.y * self.z * self.z) ** 0.5
+    
     @staticmethod
     def distance(a, b):
         # is this sqrt?

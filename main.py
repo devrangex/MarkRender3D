@@ -8,6 +8,7 @@ from renderer import *
 from matrix2 import *
 from matrix3 import *
 from polygon import *
+from cube import *
 
 canvas: tk.Canvas = None
 root: tk.Tk = None
@@ -79,7 +80,7 @@ def draw():
     deg += 5    
     root.after(100, draw)
     
-def draw_cube():
+def draw_polygon():
     
     draw_edge()
     
@@ -94,19 +95,68 @@ def draw_cube():
     renderer.draw_grid(40, 40)
     
     matRotY = Matrix4()
-    matRotY.set_rotaitionX(deg)
+    matRotY.set_rotaitionY(deg)
     
     matRotX = Matrix4()
-    matRotX.set_rotaitionY(deg)
+    matRotX.set_rotaitionZ(deg)
+    
+    matTrans = Matrix4()
+    matTrans.set_translation(5, 5, 0)
     
     polygon = Polygon()
     polygon.set_index_buffer()
     polygon.set_vertex_buffer()
     
-    polygon.transform(matRotY * matRotX)
+    #polygon.transform(matRotY * matRotX)
+    polygon.transform(matTrans * matRotX)
     polygon.render(renderer)
     
     deg += 5
+    root.after(100, draw_polygon)
+    
+def draw_cube():
+    
+    draw_edge()
+    
+    global root, canvas, width, height, deg
+    
+    canvas.delete('all')
+    
+    basis = Basis2()
+    screen = Screen()
+    screen.SetInfo(Vector2(1, 0), Vector2(0, -1), Vector2(width * 0.5, height * 0.5))    
+    renderer = Renderer(basis, screen, canvas)    
+    renderer.draw_grid(40, 40)
+    
+    matRotY = Matrix4()
+    matRotY.set_rotaitionY(deg)
+    
+    matRotX = Matrix4()
+    matRotX.set_rotaitionZ(deg)
+    
+    matTrans = Matrix4()
+    matTrans.set_translation(0, 0, -5)
+    
+    matProj = Matrix4()
+    matProj.set_projection(5, 5000, 60, width, height)
+    
+    cube = Cube()
+    cube.set_index_buffer()
+    cube.set_vertex_buffer()
+    
+    matScale = Matrix4()
+    matScale._11 = 800
+    matScale._22 = 600
+    matScale._33 = 1
+    matScale._44 = 1
+    
+    #polygon.transform(matRotY * matRotX)
+    cube.transform(matTrans * matRotY)
+    cube.transform(matProj)
+    #cube.transform(matScale)
+    cube.render(renderer)
+    
+    deg += 1
     root.after(100, draw_cube)
     
     

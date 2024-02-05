@@ -10,10 +10,10 @@ class Polygon:
         self.vertex_size = 0        
         
     def set_vertex_buffer(self):
-        self.vertex_buffer = [Vector3(-5, -5, 0),
-                                Vector3(-5, 5, 0),
-                                Vector3(5, 5, 0),
-                                Vector3(5, -5, 0)]
+        self.vertex_buffer = [Vector3(-5, -5, 5),
+                                Vector3(-5, 5, 5),
+                                Vector3(5, 5, 5),
+                                Vector3(5, -5, 5)]
         self.vertex_size = 4
         
     def set_index_buffer(self):
@@ -31,7 +31,7 @@ class Polygon:
         index_size = 12
     
     def render(self, renderer):
-        renderer.draw_indexed_primitive(self.index_buffer, 6, self.vertex_buffer)
+        renderer.draw_indexed_primitive_line_list(self.index_buffer, 6, self.vertex_buffer)
         
     def transform(self, mat: Matrix4):
         buffer = []
