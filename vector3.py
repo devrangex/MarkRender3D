@@ -1,7 +1,7 @@
 import math
 
 class Vector3:
-    def __init__(self, tx: float, ty: float) -> None:
+    def __init__(self, tx: float, ty: float, tz:float) -> None:
         self.x: float = tx
         self.y: float = ty
         self.z: float = tz

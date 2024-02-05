@@ -7,6 +7,7 @@ from screen import *
 from renderer import *
 from matrix2 import *
 from matrix3 import *
+from polygon import *
 
 canvas: tk.Canvas = None
 root: tk.Tk = None
@@ -34,8 +35,8 @@ def draw():
     screen = Screen()
     screen.SetInfo(Vector2(50, 0), Vector2(0, -50), Vector2(width * 0.5, height * 0.5))
     
-    grid = Renderer(basis, screen)    
-    grid.draw_grid(canvas, 10, 10)
+    grid = Renderer(basis, screen, canvas)    
+    grid.draw_grid(10, 10)
     
     v0 = Vector2(0, 0)
     v1 = Vector2(math.cos(math.pi/4), math.sin(math.pi/4))
@@ -43,7 +44,7 @@ def draw():
     
     
     basis2 = Basis2()
-    grid2 = Renderer(basis2, screen)
+    grid2 = Renderer(basis2, screen, canvas)
     
     # basis 축 회전
     rad = deg / 180 * math.pi
@@ -72,11 +73,37 @@ def draw():
         
     
     #basis2.SetInfo(Vector2(math.cos(rad),math.sin(rad)), Vector2(-math.sin(rad), math.cos(rad)))
-    grid2.draw_grid(canvas, 10, 10)
-    grid2.draw_line(canvas, v0, v1)
+    grid2.draw_grid(10, 10)
+    grid2.draw_line(v0, v1)
     
     deg += 5    
     root.after(100, draw)
+    
+def draw_cube():
+    
+    draw_edge()
+    
+    global root, canvas, width, height, deg
+    
+    canvas.delete('all')
+    
+    basis = Basis2()
+    screen = Screen()
+    screen.SetInfo(Vector2(20, 0), Vector2(0, -20), Vector2(width * 0.5, height * 0.5))    
+    renderer = Renderer(basis, screen, canvas)    
+    renderer.draw_grid(40, 40)
+    
+    matRot = Matrix4()
+    matRot.set_rotaitionY(deg)
+    polygon = Polygon()
+    polygon.set_index_buffer()
+    polygon.set_vertex_buffer()
+    
+    polygon.transform(matRot)
+    polygon.render(renderer)
+    
+    deg += 5
+    root.after(100, draw_cube)
     
     
 def draw_edge():
@@ -86,10 +113,10 @@ def draw_edge():
     #canvas.create_line(0, 0, width, height, fill="black", width=1)
     #canvas.create_line(0, height, width, 0, fill="black", width=1)
     
-    canvas.create_line(2, 0, 2, height, fill="black", width=1)
-    canvas.create_line(0, 2, width, 2, fill="black", width=1)
-    canvas.create_line(width - 2, 0, width - 2, height, fill="black", width=1)
-    canvas.create_line(0, height - 2, width, height - 2, fill="black", width=1)
+    canvas.create_line(2, 0, 2, height, fill="black", width=3)
+    canvas.create_line(0, 2, width, 2, fill="black", width=3)
+    canvas.create_line(width - 2, 0, width - 2, height, fill="black", width=3)
+    canvas.create_line(0, height - 2, width, height - 2, fill="black", width=3)
 
     #canvas.create_line(0, 0, 400, 0, fill="black", width=3)
 
@@ -98,9 +125,8 @@ def main():
     
     init()
     
-    draw_edge()    
-    
-    draw()
+    #draw()
+    draw_cube()
 
     root.mainloop() # GUI가 보이고 종료될때까지 실행함
     
