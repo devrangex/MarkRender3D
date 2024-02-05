@@ -93,13 +93,17 @@ def draw_cube():
     renderer = Renderer(basis, screen, canvas)    
     renderer.draw_grid(40, 40)
     
-    matRot = Matrix4()
-    matRot.set_rotaitionY(deg)
+    matRotY = Matrix4()
+    matRotY.set_rotaitionX(deg)
+    
+    matRotX = Matrix4()
+    matRotX.set_rotaitionY(deg)
+    
     polygon = Polygon()
     polygon.set_index_buffer()
     polygon.set_vertex_buffer()
     
-    polygon.transform(matRot)
+    polygon.transform(matRotY * matRotX)
     polygon.render(renderer)
     
     deg += 5
