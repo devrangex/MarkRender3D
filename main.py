@@ -126,7 +126,7 @@ def draw_cube():
     screen = Screen()
     screen.SetInfo(Vector2(1, 0), Vector2(0, -1), Vector2(width * 0.5, height * 0.5))    
     renderer = Renderer(basis, screen, canvas)    
-    renderer.draw_grid(40, 40)
+    #renderer.draw_grid(40, 40)
     
     matRotY = Matrix4()
     matRotY.set_rotaitionY(deg)
@@ -135,10 +135,10 @@ def draw_cube():
     matRotX.set_rotaitionZ(deg)
     
     matTrans = Matrix4()
-    matTrans.set_translation(0, 0, -5)
+    matTrans.set_translation(0, 0, -100)
     
     matProj = Matrix4()
-    matProj.set_projection(5, 5000, 60, width, height)
+    matProj.set_projection(5.5, 5000, 60, width, height)
     
     cube = Cube()
     cube.set_index_buffer()
@@ -151,7 +151,7 @@ def draw_cube():
     matScale._44 = 1
     
     #polygon.transform(matRotY * matRotX)
-    cube.transform(matTrans * matRotY)
+    cube.transform(matTrans * matRotY * matRotX)
     cube.transform(matProj)
     #cube.transform(matScale)
     cube.render(renderer)

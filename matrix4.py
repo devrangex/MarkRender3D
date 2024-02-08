@@ -109,6 +109,7 @@ class Matrix4:
         self._33 = (near + far) / (near - far)
         self._43 = (2 * near * far) / (near - far)
         self._34 = -1
+        self._44 = 0
     
     def __mul__(self, other):
         if isinstance(other, Matrix4):
@@ -121,12 +122,15 @@ class Matrix4:
             )
         elif isinstance(other, Vector3):
             # Matrix and Vector multiplication
-            x = self._11 * other.x + self._21 * other.y + self._31 * other.z + self._41 * 1
-            y = self._12 * other.x + self._22 * other.y + self._32 * other.z + self._42 * 1
-            z = self._13 * other.x + self._23 * other.y + self._33 * other.z + self._43 * 1            
-            w = self._14 * other.x + self._24 * other.y + self._34 * other.z + self._44 * 1            
+            x = self._11 * other.x + self._21 * other.y + self._31 * other.z + self._41 * other.w
+            y = self._12 * other.x + self._22 * other.y + self._32 * other.z + self._42 * other.w
+            z = self._13 * other.x + self._23 * other.y + self._33 * other.z + self._43 * other.w            
+            w = self._14 * other.x + self._24 * other.y + self._34 * other.z + self._44 * other.w           
             
-            return Vector3(x / w, y / w, z / w)
+            if w == 0:
+                w = 0.00000000001 
+            
+            return Vector3(x, y, z, w)
         else:
             raise TypeError("Unsupported multiplication type")
     

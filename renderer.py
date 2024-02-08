@@ -50,18 +50,26 @@ class Renderer:
         self.canvas.create_line(o.x, o.y, i.x, i.y, fill="blue", width=2, arrow=tk.LAST)
         self.canvas.create_line(o.x, o.y, j.x, j.y, fill="red", width=2, arrow=tk.LAST)
             
-    def draw_line(self, v0: Vector2, v1: Vector2, dash:bool = False) -> None:
-        v0 = (self.basis * v0)
-        v1 = (self.basis * v1)
+    def draw_line(self, v0: Vector3, v1: Vector3, dash:bool = False) -> None:
+        start = Vector3(v0.x / v0.w, v0.y / v0.w, v0.z / v0.w)
+        end = Vector3(v1.x / v1.w, v1.y / v1.w, v1.z / v1.w)
         
-        v0 = self.screen * v0
-        v1 = self.screen * v1
+        start = Vector2(start.x * 800 * 0.5, start.y * 600 * 0.5)
+        end = Vector2(end.x * 800 * 0.5, end.y * 600 * 0.5)
+        
+        start = self.screen * start
+        end = self.screen * end
+        #v0 = (self.basis * v0)
+        #v1 = (self.basis * v1)
+        
+        #v0 = self.screen * v0 * 0.5
+        #v1 = self.screen * v1 * 0.5
         #invZ = v0.z
         
-        #if(dash):
-        #    self.canvas.create_line(v0.x, v0.y, v1.x, v1.y, fill="red", width=2, dash=(2,2))
-        #else:
-        self.canvas.create_line(v0.x, v0.y, v1.x, v1.y, fill="gray", width=2)
+        if(dash):
+            self.canvas.create_line(start.x, start.y, end.x, end.y, fill="red", width=2, dash=(2,2))
+        else:
+            self.canvas.create_line(start.x, start.y, end.x, end.y, fill="gray", width=2)
         
     def draw_indexed_primitive_line_list(self, index_buffer, primiteve_counter, vertex_buffer):
         i1 = 0

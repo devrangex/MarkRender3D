@@ -11,14 +11,14 @@ class Cube:
         self.vertex_size = 0        
         
     def set_vertex_buffer(self):
-        self.vertex_buffer = [Vector3(-50, -50, 50),
-                                Vector3(-50, 50, 50),
-                                Vector3(50, 50, 50),
-                                Vector3(50, -50, 50),
-                                Vector3(-50, -50, -50),
-                                Vector3(-50, 50, -50),
-                                Vector3(50, 50, -50),
-                                Vector3(50, -50, -50)]
+        self.vertex_buffer = [Vector3(-5, -5, 5),
+                                Vector3(-5, 5, 5),
+                                Vector3(5, 5, 5),
+                                Vector3(5, -5, 5),
+                                Vector3(-5, -5, -5),
+                                Vector3(-5, 5, -5),
+                                Vector3(5, 5, -5),
+                                Vector3(5, -5, -5)]
         self.vertex_size = 4
         
     def set_index_buffer(self):

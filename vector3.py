@@ -1,10 +1,11 @@
 import math
 
 class Vector3:
-    def __init__(self, tx: float, ty: float, tz:float) -> None:
+    def __init__(self, tx: float, ty: float, tz:float, tw: float = 1) -> None:
         self.x: float = tx
         self.y: float = ty
         self.z: float = tz
+        self.w: float = tw
         
     def __add__(self, other):
         return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
