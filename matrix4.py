@@ -110,6 +110,14 @@ class Matrix4:
         self._43 = (2 * near * far) / (near - far)
         self._34 = -1
         self._44 = 0
+        
+    def transpose(self):
+        return Matrix4(
+            self._11, self._12, self._13, self._14,
+            self._21, self._22, self._23, self._24,
+            self._31, self._32, self._33, self._34,
+            self._41, self._42, self._43, self._44
+        )
     
     def __mul__(self, other):
         if isinstance(other, Matrix4):
@@ -130,7 +138,7 @@ class Matrix4:
             if w == 0:
                 w = 0.00000000001 
             
-            return Vector3(x, y, z, w)
+            return Vector3(x / w, y / w, z / w, w / w)
         else:
             raise TypeError("Unsupported multiplication type")
     

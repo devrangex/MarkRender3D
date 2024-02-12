@@ -27,7 +27,13 @@ class Vector3:
         )
         
     def magnitude(self):
-        return (self.x * self.x + self.y * self.y * self.z * self.z) ** 0.5
+        return (self.x * self.x + self.y * self.y + self.z * self.z) ** 0.5
+    
+    def normalized(self):
+        magnitude = self.magnitude()
+        self.x /= magnitude
+        self.y /= magnitude
+        self.z /= magnitude
     
     @staticmethod
     def distance(a, b):

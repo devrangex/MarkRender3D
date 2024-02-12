@@ -42,6 +42,9 @@ class Cube:
         index_size = len(buffer)
     
     def render(self, renderer: Renderer):
+        #matViewProj = renderer.camera.get_view_projection_matrix()
+        #self.transform(matViewProj)
+        
         renderer.draw_indexed_primitive_line_strip(self.index_buffer, 12, self.vertex_buffer)
         
     def transform(self, mat: Matrix4):

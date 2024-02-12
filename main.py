@@ -9,6 +9,8 @@ from matrix2 import *
 from matrix3 import *
 from polygon import *
 from cube import *
+from plane import *
+from camera import *
 
 canvas: tk.Canvas = None
 root: tk.Tk = None
@@ -116,16 +118,23 @@ def draw_polygon():
     
 def draw_cube():
     
-    draw_edge()
-    
     global root, canvas, width, height, deg
     
     canvas.delete('all')
     
+    draw_edge()
+    
     basis = Basis2()
     screen = Screen()
     screen.SetInfo(Vector2(1, 0), Vector2(0, -1), Vector2(width * 0.5, height * 0.5))    
-    renderer = Renderer(basis, screen, canvas)    
+    
+    camera = Camera()
+    camera.set_projection(5.5, 5000, 60, width, height)
+    camera.set_position(Vector3(20, 20, 0))
+    camera.look_at(Vector3(0, 0, -30))
+    
+    renderer = Renderer(basis, screen, canvas, camera)    
+
     #renderer.draw_grid(40, 40)
     
     matRotY = Matrix4()
@@ -135,14 +144,19 @@ def draw_cube():
     matRotX.set_rotaitionZ(deg)
     
     matTrans = Matrix4()
-    matTrans.set_translation(0, 0, -100)
+    matTrans.set_translation(0, 0, -30)
     
-    matProj = Matrix4()
-    matProj.set_projection(5.5, 5000, 60, width, height)
+    #matProj = Matrix4()
+    #matProj.set_projection(5.5, 5000, 60, width, height)
+    #matViewProj = camera.get_projection_matrix()
     
     cube = Cube()
     cube.set_index_buffer()
     cube.set_vertex_buffer()
+    
+    plane = Plane()
+    plane.set_vertex_buffer()
+    plane.set_index_buffer()
     
     matScale = Matrix4()
     matScale._11 = 800
@@ -151,10 +165,15 @@ def draw_cube():
     matScale._44 = 1
     
     #polygon.transform(matRotY * matRotX)
-    cube.transform(matTrans * matRotY * matRotX)
-    cube.transform(matProj)
-    #cube.transform(matScale)
+    cube.transform(matTrans * matRotY)
     cube.render(renderer)
+    #cube.transform(matViewProj)
+    #cube.transform(matScale)
+
+    
+    plane.transform(matTrans)
+    #plane.transform(matViewProj)
+    plane.render(renderer)
     
     deg += 1
     root.after(100, draw_cube)

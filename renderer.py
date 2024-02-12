@@ -6,10 +6,11 @@ from screen import *
 
 class Renderer:
     
-    def __init__(self, basis: Basis2, screen: Screen, canvas) -> None:
+    def __init__(self, basis: Basis2, screen: Screen, canvas, camera) -> None:
         self.basis: Basis2 = basis        
         self.screen: Screen = screen
         self.canvas =  canvas
+        self.camera = camera
         
     def draw_grid(self, numH: int, numV: int) -> None:
         h_begin = int(-numH * 0.5 - 0.5)
@@ -49,13 +50,16 @@ class Renderer:
         
         self.canvas.create_line(o.x, o.y, i.x, i.y, fill="blue", width=2, arrow=tk.LAST)
         self.canvas.create_line(o.x, o.y, j.x, j.y, fill="red", width=2, arrow=tk.LAST)
+
             
-    def draw_line(self, v0: Vector3, v1: Vector3, dash:bool = False) -> None:
-        start = Vector3(v0.x / v0.w, v0.y / v0.w, v0.z / v0.w)
-        end = Vector3(v1.x / v1.w, v1.y / v1.w, v1.z / v1.w)
+    def draw_line(self, v0: Vector3, v1: Vector3, dash:bool = False, color: str = "gray") -> None:
+        #start = Vector3(v0.x / v0.w, v0.y / v0.w, v0.z / v0.w)
+        #end = Vector3(v1.x / v1.w, v1.y / v1.w, v1.z / v1.w)
         
-        start = Vector2(start.x * 800 * 0.5, start.y * 600 * 0.5)
-        end = Vector2(end.x * 800 * 0.5, end.y * 600 * 0.5)
+        
+        
+        start = Vector2(v0.x * 800 * 0.5, v0.y * 600 * 0.5)
+        end = Vector2(v1.x * 800 * 0.5, v1.y * 600 * 0.5)
         
         start = self.screen * start
         end = self.screen * end
@@ -67,9 +71,9 @@ class Renderer:
         #invZ = v0.z
         
         if(dash):
-            self.canvas.create_line(start.x, start.y, end.x, end.y, fill="red", width=2, dash=(2,2))
+            self.canvas.create_line(start.x, start.y, end.x, end.y, fill=color, width=2, dash=(2,2))
         else:
-            self.canvas.create_line(start.x, start.y, end.x, end.y, fill="gray", width=2)
+            self.canvas.create_line(start.x, start.y, end.x, end.y, fill=color, width=2)
         
     def draw_indexed_primitive_line_list(self, index_buffer, primiteve_counter, vertex_buffer):
         i1 = 0
@@ -93,18 +97,31 @@ class Renderer:
             i2 = index_buffer[counter+1]
             i3 = index_buffer[counter+2]
             
-            u = vertex_buffer[i1] - vertex_buffer[i2]
-            v = vertex_buffer[i1] - vertex_buffer[i3]
-            n = u.cross(v)
-            f = Vector3(0, 0, -1)
+            v1 = vertex_buffer[i1]
+            v2 = vertex_buffer[i2]
+            v3 = vertex_buffer[i3]
             
+            u = v1 - v2
+            v = v1 - v3
+            n = u.cross(v)
+            n.normalized()
+            f = self.camera.lookDir
+            
+            color = "gray"
             dash: bool = False
             if(n.dot(f) > 0):
+                color = "cyan"
                 dash = True
+                
+            matViewProj = self.camera.get_view_projection_matrix()
+
+            v1 = matViewProj * v1
+            v2 = matViewProj * v2
+            v3 = matViewProj * v3
             
-            self.draw_line(vertex_buffer[i1], vertex_buffer[i2], dash)
-            self.draw_line(vertex_buffer[i2], vertex_buffer[i3], dash)
-            self.draw_line(vertex_buffer[i3], vertex_buffer[i1], dash)
+            self.draw_line(v1, v2, dash, color)
+            self.draw_line(v2, v3, dash, color)
+            self.draw_line(v3, v1, dash, color)
             
             counter += 3
         
