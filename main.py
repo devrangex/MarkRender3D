@@ -11,6 +11,7 @@ from polygon import *
 from cube import *
 from plane import *
 from camera import *
+from sphere import *
 
 canvas: tk.Canvas = None
 root: tk.Tk = None
@@ -130,8 +131,8 @@ def draw_cube():
     
     camera = Camera()
     camera.set_projection(5.5, 5000, 60, width, height)
-    camera.set_position(Vector3(20, 20, 0))
-    camera.look_at(Vector3(0, 0, -30))
+    camera.set_position(Vector3(0, 10, 50))
+    camera.look_at(Vector3(0, 0, 0))
     
     renderer = Renderer(basis, screen, canvas, camera)    
 
@@ -144,7 +145,7 @@ def draw_cube():
     matRotX.set_rotaitionZ(deg)
     
     matTrans = Matrix4()
-    matTrans.set_translation(0, 0, -30)
+    matTrans.set_translation((deg+1)*0.5, (deg+1)*0.5, (deg+1)*0.5)
     
     #matProj = Matrix4()
     #matProj.set_projection(5.5, 5000, 60, width, height)
@@ -153,6 +154,9 @@ def draw_cube():
     cube = Cube()
     cube.set_index_buffer()
     cube.set_vertex_buffer()
+    
+    sphere = Sphere()
+    sphere.set_geometry()
     
     plane = Plane()
     plane.set_vertex_buffer()
@@ -169,9 +173,12 @@ def draw_cube():
     cube.render(renderer)
     #cube.transform(matViewProj)
     #cube.transform(matScale)
+    
+    #sphere.transform(matTrans * matRotY)
+    #sphere.render(renderer)
 
     
-    plane.transform(matTrans)
+    #plane.transform(matTrans)
     #plane.transform(matViewProj)
     plane.render(renderer)
     
@@ -192,14 +199,262 @@ def draw_edge():
     canvas.create_line(0, height - 2, width, height - 2, fill="black", width=3)
 
     #canvas.create_line(0, 0, 400, 0, fill="black", width=3)
-
+    
+def draw_circle_3d():
+    global root, canvas, width, height, deg
+    canvas.delete('all')
+    
+    basis = Basis2()
+    screen = Screen()
+    screen.SetInfo(Vector2(1, 0), Vector2(0, -1), Vector2(width * 0.5, height * 0.5))    
+    
+    camera = Camera()
+    camera.set_projection(1, 1000, 30, width, height)
+    camera.set_position(Vector3(0, 10, 1))
+    camera.look_at(Vector3(0, 0, 0))
+    
+    renderer = Renderer(basis, screen, canvas, camera)    
+    plane = Plane()
+    plane.set_vertex_buffer()
+    plane.set_index_buffer()
+    plane.render(renderer)
+    
+    matRotZ = Matrix4()
+    matRotZ.set_rotaitionZ(deg)
+    
+    r = 8
+    rad = math.asin(0.3281)
+    theta = (math.pi / 2) - rad
+    draw_point(theta, rad, r, renderer, matRotZ)
+    draw_point(theta, -rad, r, renderer, matRotZ)
+    
+    draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ)
+    draw_point(theta, math.pi * 0.5 + -rad, r, renderer, matRotZ)
+    
+    draw_point(theta, math.pi + rad, r, renderer, matRotZ)
+    draw_point(theta, math.pi + -rad, r, renderer, matRotZ)
+    
+    draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
+    draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
+    
+    theta = (math.pi / 2) + rad
+    draw_point(theta, rad, r, renderer, matRotZ)
+    draw_point(theta, -rad, r, renderer, matRotZ)
+    
+    draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ)
+    draw_point(theta, math.pi * 0.5 + -rad, r, renderer, matRotZ)
+    
+    draw_point(theta, math.pi + rad, r, renderer, matRotZ)
+    draw_point(theta, math.pi + -rad, r, renderer, matRotZ)
+    
+    draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
+    draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
+    
+    theta = rad
+    # draw_point(theta, rad, r, renderer, matRotZ)
+    # draw_point(theta, -rad, r, renderer, matRotZ)
+    
+    # draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ)
+    # draw_point(theta, math.pi * 0.5 + -rad, r, renderer, matRotZ)
+    
+    # draw_point(theta, math.pi + rad, r, renderer, matRotZ)
+    # draw_point(theta, math.pi + -rad, r, renderer, matRotZ)
+    
+    # draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
+    # draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
+        
+    matViewProj = renderer.camera.get_view_projection_matrix()
+    theta = math.pi * 0.5 - rad        
+    for i in range(360):
+        
+        sin_theta = math.sin(theta)
+        cos_theta = math.cos(theta)
+        
+        phi = i * math.pi / 180
+        sin_phi = math.sin(phi)
+        cos_phi = math.cos(phi)        
+        p1 = matViewProj * matRotZ * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
+        
+        phi = (i + 2) * math.pi / 180
+        sin_phi = math.sin(phi)
+        cos_phi = math.cos(phi)
+        p2 = matViewProj * matRotZ * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
+        
+        renderer.draw_line(p1, p2)
+        
+    theta = math.pi * 0.5 + rad        
+    for i in range(360):
+        
+        sin_theta = math.sin(theta)
+        cos_theta = math.cos(theta)
+        
+        phi = i * math.pi / 180
+        sin_phi = math.sin(phi)
+        cos_phi = math.cos(phi)        
+        p1 = matViewProj * matRotZ * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
+        
+        phi = (i + 2) * math.pi / 180
+        sin_phi = math.sin(phi)
+        cos_phi = math.cos(phi)
+        p2 = matViewProj * matRotZ * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
+        
+        renderer.draw_line(p1, p2)
+        
+    deg += 1
+    root.after(100, draw_circle_3d)
+    
+    # phi = theta
+    
+    # phi = math.
+    # p1 = matViewProj * Vector3(0, 0, 0)
+    # p2 = matViewProj * Vector3(r * math.cos(theta), r * math.sin(theta), 1)    
+    # renderer.draw_line(p1, p2)
+    
+    # p1 = matViewProj * Vector3(0, 0, 0)
+    # p2 = matViewProj * Vector3(r * math.cos(-theta), r * math.sin(-theta), 1)
+    # renderer.draw_line(p1, p2)
+    
+# def draw_vert_point(theta, rad):
+#     draw_point(theta, rad, r, renderer, matRotZ)
+#     draw_point(theta, -rad, r, renderer, matRotZ)
+    
+#     draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ)
+#     draw_point(theta, math.pi * 0.5 + -rad, r, renderer, matRotZ)
+    
+#     draw_point(theta, math.pi + rad, r, renderer, matRotZ)
+#     draw_point(theta, math.pi + -rad, r, renderer, matRotZ)
+    
+#     draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
+#     draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
+    
+def draw_point(theta, phi, r, renderer, matTransform):    
+    matViewProj = renderer.camera.get_view_projection_matrix()
+    
+    sin_theta = math.sin(theta)
+    cos_theta = math.cos(theta)
+    
+    sin_phi = math.sin(phi)
+    cos_phi = math.cos(phi)
+    
+    p1 = matViewProj * matTransform * Vector3(0, 0, 0)
+    p2 = matViewProj * matTransform * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
+    renderer.draw_line(p1, p2)
+    
+    return p2
+    
+    
+def draw_circle():
+    global root, canvas, width, height, deg
+    
+    matScreen = Matrix3(
+                    100, 0, width/2,
+                    0, -100, height/2,
+                    0, 0, 1
+                )    
+    
+    r = 1
+    theta = 0
+    for i in range(360):
+        theta = i * math.pi / 180
+        v1 = Vector2(r * math.cos(theta), r * math.sin(theta))
+        v1 = matScreen * v1
+        
+        theta = (i + 1) * math.pi / 180
+        v2 = Vector2(r * math.cos(theta), r * math.sin(theta))
+        v2 = matScreen * v2
+        
+        canvas.create_line(v1.x, v1.y, v2.x, v2.y, fill="black", width=2)
+        print(i, theta)
+        
+    
+    w1 = matScreen * Vector2(-2, 0)
+    w2 = matScreen * Vector2(2, 0)    
+    canvas.create_line(w1.x, w1.y, w2.x, w2.y, fill="blue", width=1, dash=(2,2))
+    
+    h1 = matScreen * Vector2(0, -2)
+    h2 = matScreen * Vector2(0, 2)    
+    canvas.create_line(h1.x, h1.y, h2.x, h2.y, fill="red", width=1, dash=(2,2))    
+    
+    # p1 = matScreen * Vector2(-1, 0.3281)
+    # p2 = matScreen * Vector2(1, 0.3281)    
+    # canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="gray", width=1, dash=(2,2))    
+    
+    # p1 = matScreen * Vector2(-1, -0.3281)
+    # p2 = matScreen * Vector2(1, -0.3281)    
+    # canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="gray", width=1, dash=(2,2))    
+    
+    # p1 = matScreen * Vector2(0.3281, -1)
+    # p2 = matScreen * Vector2(0.3281, 1)    
+    # canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="gray", width=1, dash=(2,2))    
+    
+    # p1 = matScreen * Vector2(-0.3281, -1)
+    # p2 = matScreen * Vector2(-0.3281, 1)    
+    # canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="gray", width=1, dash=(2,2))
+    
+    
+    # 1사분면
+    theta = math.asin(0.3281)
+    p1 = matScreen * Vector3(0, 0, 1)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta), 1)
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    theta = -math.asin(0.3281)
+    p1 = matScreen * Vector3(0, 0, 1)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta), 1)
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    # 2사분면
+    theta = math.asin(0.3281)
+    theta += math.pi * 0.5
+    p1 = matScreen * Vector3(0, 0)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta))
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    theta = -math.asin(0.3281)
+    theta += math.pi * 0.5
+    p1 = matScreen * Vector3(0, 0)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta))
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    # 3사분면
+    theta = math.asin(0.3281)
+    theta += math.pi
+    p1 = matScreen * Vector3(0, 0)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta))
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    theta = -math.asin(0.3281)
+    theta += math.pi
+    p1 = matScreen * Vector3(0, 0)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta))
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    # 4사분면    
+    theta = math.asin(0.3281)
+    theta += math.pi * 1.5
+    p1 = matScreen * Vector3(0, 0)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta))
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    theta = -math.asin(0.3281)
+    theta += math.pi * 1.5
+    p1 = matScreen * Vector3(0, 0)
+    p2 = matScreen * Vector3(r * math.cos(theta), r * math.sin(theta))
+    canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill="green", width=1, dash=(1,1))
+    
+    #x = math.sin(theta)
+    
+    #deg =  theta * 180 / math.pi
+    #print(deg)
+    
 
 def main():
     
     init()
     
     #draw()
-    draw_cube()
+    #draw_cube()
+    draw_circle_3d()
 
     root.mainloop() # GUI가 보이고 종료될때까지 실행함
     

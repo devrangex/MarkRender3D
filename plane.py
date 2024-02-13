@@ -12,9 +12,9 @@ class Plane:
         
     def set_vertex_buffer(self):
         self.vertex_buffer = [Vector3(0, 0, 0),
-                                Vector3(10, 0, 0),
-                                Vector3(0, 10, 0),
-                                Vector3(0, 0, 10)]
+                                Vector3(50, 0, 0),
+                                Vector3(0, 50, 0),
+                                Vector3(0, 0, 50)]
         self.vertex_size = 4
         
     def set_index_buffer(self):

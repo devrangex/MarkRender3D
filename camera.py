@@ -33,8 +33,8 @@ class Camera:
         #dir = self.lookAt - self.localPosition
         #dir.normalized()
         
-        axisZ = self.lookDir * -1
-        axisX = axisZ.cross(Vector3.up)
+        axisZ = self.lookDir
+        axisX = Vector3.up.cross(axisZ)#.cross()
         axisY = axisX.cross(axisZ)
         
         matRotation = Matrix4(

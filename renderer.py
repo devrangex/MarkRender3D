@@ -92,6 +92,8 @@ class Renderer:
         i2 = 0
         i3 = 0
         counter = 0
+        matViewProj = self.camera.get_view_projection_matrix()
+        
         for i in range(primitive_counter):
             i1 = index_buffer[counter]
             i2 = index_buffer[counter+1]
@@ -113,7 +115,7 @@ class Renderer:
                 color = "cyan"
                 dash = True
                 
-            matViewProj = self.camera.get_view_projection_matrix()
+            
 
             v1 = matViewProj * v1
             v2 = matViewProj * v2
@@ -124,5 +126,18 @@ class Renderer:
             self.draw_line(v3, v1, dash, color)
             
             counter += 3
-        
+    
+    def draw_primitive_line(self, vertex_buffer: Vector3):
+        matViewProj = self.camera.get_view_projection_matrix()
+        for vertex in vertex_buffer:
+            #x2d, y2d = project_3d_to_2d(vertex.x, vertex.y, vertex.z)
+            # Adjust the projected coordinates to fit the canvas
+            v = matViewProj * vertex
+            
+            #x = (x2d + 1) * (width / 2)
+            #y = (y2d + 1) * (height / 2)
+            v = Vector2(v.x * 800 * 0.5, v.y * 600 * 0.5)            
+            v = self.screen * v
+            
+            self.canvas.create_oval(v.x - 2, v.y - 2, v.x + 2, v.y + 2, fill='black')
         

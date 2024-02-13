@@ -1,5 +1,6 @@
 import math
 from vector2 import *
+from vector3 import *
 
 class Matrix3:
     def __init__(
@@ -83,6 +84,13 @@ class Matrix3:
             z = self._13 * other.x + self._23 * other.y + self._33 * 1            
             
             return Vector2(x / z, y / z)
+        elif isinstance(other, Vector3):
+            # Matrix and Vector multiplication
+            x = self._11 * other.x + self._21 * other.y + self._31 * other.z
+            y = self._12 * other.x + self._22 * other.y + self._32 * other.z
+            z = self._13 * other.x + self._23 * other.y + self._33 * other.z      
+            
+            return Vector3(x, y, z)
         else:
             raise TypeError("Unsupported multiplication type")
     
