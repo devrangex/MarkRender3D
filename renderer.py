@@ -6,11 +6,13 @@ from screen import *
 
 class Renderer:
     
-    def __init__(self, basis: Basis2, screen: Screen, canvas, camera) -> None:
+    def __init__(self, basis: Basis2, screen: Screen, canvas, camera, width = 800, height = 600) -> None:
         self.basis: Basis2 = basis        
         self.screen: Screen = screen
         self.canvas =  canvas
         self.camera = camera
+        self.width = width
+        self.height = height
         
     def draw_grid(self, numH: int, numV: int) -> None:
         h_begin = int(-numH * 0.5 - 0.5)
@@ -58,8 +60,8 @@ class Renderer:
         
         
         
-        start = Vector2(v0.x * 800 * 0.5, v0.y * 600 * 0.5)
-        end = Vector2(v1.x * 800 * 0.5, v1.y * 600 * 0.5)
+        start = Vector2(v0.x * self.width * 0.5, v0.y * self.height * 0.5)
+        end = Vector2(v1.x * self.width * 0.5, v1.y * self.height * 0.5)
         
         start = self.screen * start
         end = self.screen * end
@@ -124,6 +126,32 @@ class Renderer:
             self.draw_line(v1, v2, dash, color)
             self.draw_line(v2, v3, dash, color)
             self.draw_line(v3, v1, dash, color)
+            
+            counter += 3
+            
+    def draw_indexed_primitive_line_strip_2(self, index_buffer, primitive_counter, vertex_buffer: Vector3):
+        i1 = 0
+        i2 = 0
+        i3 = 0
+        counter = 0
+        matViewProj = self.camera.get_view_projection_matrix()
+        
+        for i in range(primitive_counter):
+            i1 = index_buffer[counter]
+            i2 = index_buffer[counter+1]
+            i3 = index_buffer[counter+2]
+            
+            v1 = vertex_buffer[i1]
+            v2 = vertex_buffer[i2]
+            v3 = vertex_buffer[i3]            
+
+            v1 = matViewProj * v1
+            v2 = matViewProj * v2
+            v3 = matViewProj * v3
+            
+            self.draw_line(v1, v2)
+            self.draw_line(v2, v3)
+            self.draw_line(v3, v1)
             
             counter += 3
     

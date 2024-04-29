@@ -15,6 +15,7 @@ from sphere import *
 
 canvas: tk.Canvas = None
 root: tk.Tk = None
+mainFrame: tk.Frame = None
 width: int = 800
 height: int = 600
 deg: int = 0
@@ -25,9 +26,11 @@ def init():
     root = tk.Tk() # GUI 생성 
     root.title("GameEngine Example")
     root.geometry("1100x800")
+    mainFrame = tk.Frame(root)    
 
     canvas = tk.Canvas(root, width=width, height=height)
-    canvas.pack()
+    canvas.pack()   
+    
     
 def draw():
     
@@ -131,10 +134,10 @@ def draw_cube():
     
     camera = Camera()
     camera.set_projection(5.5, 5000, 60, width, height)
-    camera.set_position(Vector3(0, 10, 50))
+    camera.set_position(Vector3(0, 50, 50))
     camera.look_at(Vector3(0, 0, 0))
     
-    renderer = Renderer(basis, screen, canvas, camera)    
+    renderer = Renderer(basis, screen, canvas, camera, width, height)    
 
     #renderer.draw_grid(40, 40)
     
@@ -146,6 +149,7 @@ def draw_cube():
     
     matTrans = Matrix4()
     matTrans.set_translation((deg+1)*0.5, (deg+1)*0.5, (deg+1)*0.5)
+    matTrans.set_identity()
     
     #matProj = Matrix4()
     #matProj.set_projection(5.5, 5000, 60, width, height)
@@ -206,36 +210,58 @@ def draw_circle_3d():
     
     basis = Basis2()
     screen = Screen()
-    screen.SetInfo(Vector2(1, 0), Vector2(0, -1), Vector2(width * 0.5, height * 0.5))    
+    screen.SetInfo(Vector2(20, 0), Vector2(0, -20), Vector2(width * 0.5, height * 0.5))    
     
     camera = Camera()
     camera.set_projection(1, 1000, 30, width, height)
-    camera.set_position(Vector3(0, 10, 1))
+    camera.set_position(Vector3(0, 0, 200))
     camera.look_at(Vector3(0, 0, 0))
     
-    renderer = Renderer(basis, screen, canvas, camera)    
+    renderer = Renderer(basis, screen, canvas, camera, width, height)    
     plane = Plane()
     plane.set_vertex_buffer()
     plane.set_index_buffer()
-    plane.render(renderer)
+    #plane.render(renderer)
     
     matRotZ = Matrix4()
-    matRotZ.set_rotaitionZ(deg)
+    matRotZ.set_rotaitionX(deg)
+    #matRotZ.set_identity()
+    #outputtext.gr
     
-    r = 8
+    matViewProj = renderer.camera.get_view_projection_matrix()
+    mat = matViewProj * matRotZ
+    
+    r = 1
     rad = math.asin(0.3281)
+    
+    localOrigin = matViewProj * Vector3(0, 0, 0)
+    localAxis = matViewProj * (Vector3(matRotZ._11, matRotZ._12, matRotZ._13) * r * 2)
+    renderer.draw_line(localOrigin, localAxis, dash=True, color="blue")
+    
+    localAxis = matViewProj * (Vector3(matRotZ._21, matRotZ._22, matRotZ._23) * r * 2)
+    renderer.draw_line(localOrigin, localAxis, dash=True, color="red")
+    
+    localAxis = matViewProj * (Vector3(matRotZ._31, matRotZ._32, matRotZ._33) * r * 2)
+    renderer.draw_line(localOrigin, localAxis, dash=True, color="green")
+    
+    
+    
     theta = (math.pi / 2) - rad
-    draw_point(theta, rad, r, renderer, matRotZ)
-    draw_point(theta, -rad, r, renderer, matRotZ)
+    l1 = draw_point(theta, 0, r, renderer, matRotZ)
+    l2 = draw_point(theta, 0, r, renderer, matRotZ)
+    renderer.draw_line(mat * l1, mat * l2, True, "cyan")
     
-    draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ)
-    draw_point(theta, math.pi * 0.5 + -rad, r, renderer, matRotZ)
+    l1 = draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ)
+    l2 = draw_point(theta, math.pi * 0.5 + -rad, r, renderer, matRotZ)
+    renderer.draw_line(mat * l1, mat * l2, True, "cyan")    
     
-    draw_point(theta, math.pi + rad, r, renderer, matRotZ)
-    draw_point(theta, math.pi + -rad, r, renderer, matRotZ)
+    l1 = draw_point(theta, math.pi + rad, r, renderer, matRotZ)
+    l2 = draw_point(theta, math.pi + -rad, r, renderer, matRotZ)
+    renderer.draw_line(mat * l1, mat * l2, True, "cyan")
     
-    draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
-    draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
+    l1 = draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
+    l2 = draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
+    renderer.draw_line(mat * l1, mat * l2, True, "cyan")
     
     theta = (math.pi / 2) + rad
     draw_point(theta, rad, r, renderer, matRotZ)
@@ -251,7 +277,19 @@ def draw_circle_3d():
     draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
     
     theta = rad
-    # draw_point(theta, rad, r, renderer, matRotZ)
+    l1 = draw_point(theta, math.pi * 0.5 - rad, r, renderer, matRotZ, "red")
+    l2 = draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ, "blue")
+    
+    # draw_point(theta, -rad, r, renderer, matRotZ)
+    # draw_point(-theta, -rad, r, renderer, matRotZ)
+    
+    # draw_point(math.pi + theta, rad, r, renderer, matRotZ)
+    # draw_point(math.pi -theta, rad, r, renderer, matRotZ)
+    
+    # draw_point(math.pi + theta, -rad, r, renderer, matRotZ)
+    # draw_point(math.pi -theta, -rad, r, renderer, matRotZ)
+    
+
     # draw_point(theta, -rad, r, renderer, matRotZ)
     
     # draw_point(theta, math.pi * 0.5 + rad, r, renderer, matRotZ)
@@ -262,9 +300,14 @@ def draw_circle_3d():
     
     # draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
     # draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
+    
+    #sphere = Sphere()
+    #sphere.set_geometry()
+    #sphere.render(renderer)
         
-    matViewProj = renderer.camera.get_view_projection_matrix()
-    theta = math.pi * 0.5 - rad        
+    
+    #theta = math.pi * 0.5 - rad        
+    theta = math.pi * 0.5
     for i in range(360):
         
         sin_theta = math.sin(theta)
@@ -280,22 +323,27 @@ def draw_circle_3d():
         cos_phi = math.cos(phi)
         p2 = matViewProj * matRotZ * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
         
-        renderer.draw_line(p1, p2)
+        renderer.draw_line(p1, p2, True, "red")
         
-    theta = math.pi * 0.5 + rad        
-    for i in range(360):
+    #theta = math.pi * 0.5 + rad
+    for i in range(360):        
+        phi = 0        
+        
+        sin_phi = math.sin(phi)
+        cos_phi = math.cos(phi) 
+        
+        theta = i * math.pi / 180
         
         sin_theta = math.sin(theta)
-        cos_theta = math.cos(theta)
-        
-        phi = i * math.pi / 180
-        sin_phi = math.sin(phi)
-        cos_phi = math.cos(phi)        
+        cos_theta = math.cos(theta)       
         p1 = matViewProj * matRotZ * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
         
-        phi = (i + 2) * math.pi / 180
-        sin_phi = math.sin(phi)
-        cos_phi = math.cos(phi)
+        #phi = (i + 2) * math.pi / 180
+        
+        theta = (i + 2) * math.pi / 180
+        sin_theta = math.sin(theta)
+        cos_theta = math.cos(theta)       
+        
         p2 = matViewProj * matRotZ * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
         
         renderer.draw_line(p1, p2)
@@ -327,8 +375,9 @@ def draw_circle_3d():
 #     draw_point(theta, math.pi * 1.5 + rad, r, renderer, matRotZ)
 #     draw_point(theta, math.pi * 1.5 + -rad, r, renderer, matRotZ)    
     
-def draw_point(theta, phi, r, renderer, matTransform):    
+def draw_point(theta, phi, r, renderer, matTransform, color="gray"):    
     matViewProj = renderer.camera.get_view_projection_matrix()
+    mat = matViewProj * matTransform
     
     sin_theta = math.sin(theta)
     cos_theta = math.cos(theta)
@@ -336,9 +385,24 @@ def draw_point(theta, phi, r, renderer, matTransform):
     sin_phi = math.sin(phi)
     cos_phi = math.cos(phi)
     
-    p1 = matViewProj * matTransform * Vector3(0, 0, 0)
-    p2 = matViewProj * matTransform * Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
-    renderer.draw_line(p1, p2)
+    p1 = Vector3(0, 0, 0)
+    p2 = Vector3(r * sin_theta * cos_phi, r * cos_theta, r * sin_theta * sin_phi)
+    renderer.draw_line(mat * p1, mat * p2, False, color)
+    
+    e1 = Vector3(sin_theta * cos_phi, cos_theta, sin_theta * sin_phi)
+    e1 *= 0.2
+    e1 = p2 + e1        
+    renderer.draw_line(mat * p2, mat * e1, True, "red")
+    
+    e2 = Vector3(cos_theta * cos_phi, -sin_theta, cos_theta * sin_phi)
+    e2 *= 0.2
+    e2 = p2 + e2
+    renderer.draw_line(mat * p2, mat * e2, True, "blue")
+    
+    e3 = Vector3(-sin_phi, 0, cos_phi)
+    e3 *= 0.2
+    e3 = p2 + e3
+    renderer.draw_line(mat * p2, mat * e3, True, "green")
     
     return p2
     
@@ -453,8 +517,8 @@ def main():
     init()
     
     #draw()
-    #draw_cube()
-    draw_circle_3d()
+    draw_cube()
+    #draw_circle_3d()
 
     root.mainloop() # GUI가 보이고 종료될때까지 실행함
     
