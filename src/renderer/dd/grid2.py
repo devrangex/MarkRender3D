@@ -63,3 +63,5 @@ class Grid2:
             
             self.canvas.coords(line, p0.x, p0.y, p1.x, p1.y)
             
+    def draw(self):
+        pass

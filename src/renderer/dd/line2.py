@@ -10,3 +10,5 @@ class Line2(GameObject):
         
         item = canvas.create_line(self.start.x, self.start.y, self.end.x, self.end.y, fill=fill, width=width, dash=dash)        
         super(Line2, self).__init__(canvas, item)
+        
+    
