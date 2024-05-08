@@ -2,6 +2,7 @@ import tkinter as tk
 from renderer.dd.line2 import Line2
 from renderer.dd.vector2 import Vector2
 from renderer.dd.grid2 import Grid2
+from renderer.dd.screen import Screen
 
 class Game(tk.Frame):
     def __init__(self, master):
@@ -35,8 +36,10 @@ class Game(tk.Frame):
         #self.line = Line2(self.canvas, Vector2(0, 0), Vector2(self.width, self.height))        
         self.grid = Grid2(self.canvas, 10, 10)
         
-        self.canvas.create_line(0, self.height / 2, self.width, self.height / 2, fill="blue", width=1)
-        self.canvas.create_line(self.width / 2, 0, self.width / 2, self.height, fill="red", width=1)
+        
+        
+        screen = Screen(self.canvas, self.width, self.height)
+            
 
     def setup_game(self):
         #self.add_ball()

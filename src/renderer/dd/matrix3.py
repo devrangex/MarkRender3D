@@ -1,6 +1,6 @@
 import math
-from vector2 import *
-from vector3 import *
+from .vector2 import Vector2
+from .vector3 import Vector3
 
 class Matrix3:
     def __init__(
