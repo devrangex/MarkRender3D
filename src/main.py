@@ -1,109 +1,145 @@
-import tkinter as tk
-from renderer.dd.line2 import Line2
+import pygame
 from renderer.dd.vector2 import Vector2
-from renderer.dd.grid2 import Grid2
-from renderer.dd.screen import Screen
+import numpy as np
 
-class Game(tk.Frame):
-    def __init__(self, master):
-        super(Game, self).__init__(master)
-        self.lives = 3
-        self.width = 400
-        self.height = 400
-        self.canvas = tk.Canvas(self, bg="#aaaaff", width=self.width, height=self.height)
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 640
 
-        self.canvas.pack()
-        self.pack()
-
-        self.items = {}
-        self.ball = None
-        # self.paddle = Paddle(self.canvas, self.width / 2, 326)
-        # self.items[self.paddle.item] = self.paddle
-
-        # for x in range(5, self.width - 5, 75):
-        #     self.add_brick(x + 37.5, 50, 3)
-        #     self.add_brick(x + 37.5, 70, 2)
-        #     self.add_brick(x + 37.5, 90, 1)
-
-        self.hud = None
-        self.setup_game()
-        self.canvas.focus_set()
-        # self.canvas.bind("<Left>",
-        #                  lambda _: self.paddle.move(-10))
-        # self.canvas.bind("<Right>",
-        #                  lambda _: self.paddle.move(10))
+class Basis:
+    def __init__(self) -> None:
+        self.axis1 = Vector2(1, 0)
+        self.axis2 = Vector2(0, 1)
         
-        #self.line = Line2(self.canvas, Vector2(0, 0), Vector2(self.width, self.height))        
-        self.grid = Grid2(self.canvas, 10, 10)
+    def trasnform(self, input) -> Vector2:
+        t0 = self.axis1 * input.x
+        t1 = self.axis2 * input.y
+        return Vector2(t0.x + t1.x, t0.y + t1.y)
         
+class ScreenCoordinates:
+    def __init__(self, width, height) -> None:
         
+        pixelWidth = 10
+        self.origin = np.array([width * 0.5, height * 0.5])        
+        self.axis1 = Vector2(pixelWidth, 0)
+        self.axis2 = Vector2(0, -pixelWidth)
         
-        screen = Screen(self.canvas, self.width, self.height)
-            
-
-    def setup_game(self):
-        #self.add_ball()
-        self.update_lives_text()
-        self.text = self.draw_text(300, 200, "Press space to start")
-        self.canvas.bind("<space>",
-                         lambda _: self.start_game())
-
-    # def add_ball(self):
-    #     if self.ball is not None:
-    #         self.ball.delete()
-    #     paddle_coords = self.paddle.get_position()
-    #     x = (paddle_coords[0] + paddle_coords[2]) / 2
-    #     self.ball = Ball(self.canvas, x, 310)
-    #     self.paddle.set_ball(self.ball)
-
-    # def add_brick(self, x, y, hits):
-    #     brick = Brick(self.canvas, x, y, hits)
-    #     self.items[brick.item] = brick
-
-    def draw_text(self, x, y, text, size="40"):
-        font = ("Helvetica", size)
-        return self.canvas.create_text(x, y, text=text, font=font)
-
-    def update_lives_text(self):
-        text = "Lives: %s" % self.lives
-        if self.hud is None:
-            self.hud = self.draw_text(50, 20, text, 15)
-        else:
-            self.canvas.itemconfig(self.hud, text=text)
-
-    def start_game(self):
-        # Unbind space so we can't start the game twice
-        self.canvas.unbind("<space>")
-        self.canvas.delete(self.text)
-        #self.paddle.ball = None
-        self.game_loop()
-
-    def game_loop(self):
-        #self.check_collisions()
-        #num_bricks = len(self.canvas.find_withtag("brick"))
-        # if num_bricks == 0:
-        #     self.ball.speed = None
-        #     self.draw_text(300, 200, "You win!")
-        # If the ball has reached the bottom of the canvas
-        # elif self.ball.get_position()[3] >= self.height:
-        #     self.ball.speed = None
-        #     self.lives -= 1
-        #     if self.lives < 0:
-        #         self.draw_text(300, 200, "Game over")
-        #     else:
-        #         # Execute self.setup_game after 1000 miliseconds
-        #         self.after(1000, self.setup_game)
-        # else:
-        #     self.ball.update()
-        
-        self.grid.update()
-            
-        self.after(50, self.game_loop)
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    root.title("Hello, pong!")
-    game = Game(root)
-
-    game.mainloop()
+    def trasnform(self, input) -> Vector2:
+        t0 = self.axis1 * input.x
+        t1 = self.axis2 * input.y
+        return Vector2(t0.x + t1.x + self.origin[0], t0.y + t1.y + self.origin[1])
     
+class Renderer:
+    def __init__(self, width, height) -> None:
+        self.basis = Basis()
+        self.screenCoordinates = ScreenCoordinates(width, height)
+        pass
+    
+    def update(self):
+        pass
+    
+    def draw(self):
+        pass
+    
+    def draw_line(self, SCREEN, color, p0, p1):
+        
+        v0 = self.basis.trasnform(p0)
+        v1 = self.basis.trasnform(p1)
+        
+        v0 = self.screenCoordinates.trasnform(v0)
+        v1 = self.screenCoordinates.trasnform(v1)
+        
+        pygame.draw.line(SCREEN, color, (v0.x, v0.y), (v1.x, v1.y))
+    
+    def put_pixel(self, SCREEN, color, x, y):
+        v0 = Vector2(x, y)
+        v1 = Vector2(x + 1, y + 1)
+        
+        v0 = self.basis.trasnform(v0)
+        v1 = self.basis.trasnform(v1)
+        
+        v0 = self.screenCoordinates.trasnform(v0)
+        v1 = self.screenCoordinates.trasnform(v1)
+            
+        pygame.draw.rect(SCREEN, color, [v0.x, v0.y, abs(v1.x - v0.x), abs(v1.y - v0.y)])
+        
+    def draw_grid(self, SCREEN, v, h):
+        self.horizontal = h
+        self.vertical = v
+        
+        for i in range(self.horizontal + 1):
+            p0 = Vector2(-self.vertical * 0.5, 0) + Vector2(0, (i - self.horizontal * 0.5))
+            p1 = Vector2(self.vertical * 0.5, 0) + Vector2(0, (i - self.horizontal * 0.5))    
+            self.draw_line(SCREEN, (200, 200, 200), p0, p1)
+            
+        for i in range(self.vertical + 1):
+            p0 = Vector2(i - self.vertical * 0.5, 0) + Vector2(0, - self.horizontal * 0.5)
+            p1 = Vector2(i - self.vertical * 0.5, 0) + Vector2(0, self.horizontal * 0.5)   
+            self.draw_line(SCREEN, (200, 200, 200), p0, p1)
+
+
+def main():    
+
+    pygame.init()
+
+    SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    pygame.display.set_caption("pygame test")
+
+    clock = pygame.time.Clock()
+
+    playing = True
+    posx = 0
+    posy = 0
+    
+    renderer = Renderer(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    while playing:
+        
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                playing = False
+                pygame.quit()
+                
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    print("왼쪽 키 눌림")
+                    posx -= 1
+                if event.key == pygame.K_RIGHT:
+                    print("오른쪽 키 눌림")
+                    posx += 1
+
+                if event.key == pygame.K_UP:
+                    print("위로 키 눌림")
+                    posy += 1
+                if event.key == pygame.K_DOWN:
+                    print("아래로 키 눌림")
+                    posy -= 1
+
+ 
+            # 키가 떼졌을 때
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    print("왼쪽 키 떼짐")
+                if event.key == pygame.K_RIGHT:
+                    print("오른쪽 키 떼짐")
+
+                if event.key == pygame.K_UP:
+                    print("위로 키 떼짐")
+                if event.key == pygame.K_DOWN:
+                    print("아래로 키 떼짐")
+                
+        SCREEN.fill((255, 255, 255))
+        
+        renderer.draw_grid(SCREEN, 10, 10)
+        renderer.put_pixel(SCREEN, (0, 255, 0), posx, posy)
+        renderer.draw_line(SCREEN, (255, 0, 0), Vector2(0, 0), Vector2(0, 5))
+        renderer.draw_line(SCREEN, (0, 0, 255), Vector2(5, 0), Vector2(0, 0))
+        # 키가 눌렸을 때
+
+
+        pygame.display.flip()
+        clock.tick(60)
+        
+if __name__ == '__main__':
+    main()
