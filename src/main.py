@@ -1,80 +1,12 @@
 import pygame
 from renderer.dd.vector2 import Vector2
+from renderer.renderer import Renderer
+from renderer.dd.matrix3 import Matrix3
 import numpy as np
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 640
 
-class Basis:
-    def __init__(self) -> None:
-        self.axis1 = Vector2(1, 0)
-        self.axis2 = Vector2(0, 1)
-        
-    def trasnform(self, input) -> Vector2:
-        t0 = self.axis1 * input.x
-        t1 = self.axis2 * input.y
-        return Vector2(t0.x + t1.x, t0.y + t1.y)
-        
-class ScreenCoordinates:
-    def __init__(self, width, height) -> None:
-        
-        pixelWidth = 10
-        self.origin = np.array([width * 0.5, height * 0.5])        
-        self.axis1 = Vector2(pixelWidth, 0)
-        self.axis2 = Vector2(0, -pixelWidth)
-        
-    def trasnform(self, input) -> Vector2:
-        t0 = self.axis1 * input.x
-        t1 = self.axis2 * input.y
-        return Vector2(t0.x + t1.x + self.origin[0], t0.y + t1.y + self.origin[1])
-    
-class Renderer:
-    def __init__(self, width, height) -> None:
-        self.basis = Basis()
-        self.screenCoordinates = ScreenCoordinates(width, height)
-        pass
-    
-    def update(self):
-        pass
-    
-    def draw(self):
-        pass
-    
-    def draw_line(self, SCREEN, color, p0, p1):
-        
-        v0 = self.basis.trasnform(p0)
-        v1 = self.basis.trasnform(p1)
-        
-        v0 = self.screenCoordinates.trasnform(v0)
-        v1 = self.screenCoordinates.trasnform(v1)
-        
-        pygame.draw.line(SCREEN, color, (v0.x, v0.y), (v1.x, v1.y))
-    
-    def put_pixel(self, SCREEN, color, x, y):
-        v0 = Vector2(x, y)
-        v1 = Vector2(x + 1, y + 1)
-        
-        v0 = self.basis.trasnform(v0)
-        v1 = self.basis.trasnform(v1)
-        
-        v0 = self.screenCoordinates.trasnform(v0)
-        v1 = self.screenCoordinates.trasnform(v1)
-            
-        pygame.draw.rect(SCREEN, color, [v0.x, v0.y, abs(v1.x - v0.x), abs(v1.y - v0.y)])
-        
-    def draw_grid(self, SCREEN, v, h):
-        self.horizontal = h
-        self.vertical = v
-        
-        for i in range(self.horizontal + 1):
-            p0 = Vector2(-self.vertical * 0.5, 0) + Vector2(0, (i - self.horizontal * 0.5))
-            p1 = Vector2(self.vertical * 0.5, 0) + Vector2(0, (i - self.horizontal * 0.5))    
-            self.draw_line(SCREEN, (200, 200, 200), p0, p1)
-            
-        for i in range(self.vertical + 1):
-            p0 = Vector2(i - self.vertical * 0.5, 0) + Vector2(0, - self.horizontal * 0.5)
-            p1 = Vector2(i - self.vertical * 0.5, 0) + Vector2(0, self.horizontal * 0.5)   
-            self.draw_line(SCREEN, (200, 200, 200), p0, p1)
 
 
 def main():    
@@ -88,8 +20,16 @@ def main():
     clock = pygame.time.Clock()
 
     playing = True
+    fps = 60
+    deltaTime = 0
     posx = 0
     posy = 0
+    
+    v1 = Vector2(0, 0)
+    v2 = Vector2(10, 0)
+    matRotation = Matrix3()
+    deltaRot = 0
+    #matRotation.set_rotaition()
     
     renderer = Renderer(SCREEN_WIDTH, SCREEN_HEIGHT)
 
@@ -131,15 +71,20 @@ def main():
                 
         SCREEN.fill((255, 255, 255))
         
-        renderer.draw_grid(SCREEN, 10, 10)
-        renderer.put_pixel(SCREEN, (0, 255, 0), posx, posy)
-        renderer.draw_line(SCREEN, (255, 0, 0), Vector2(0, 0), Vector2(0, 5))
-        renderer.draw_line(SCREEN, (0, 0, 255), Vector2(5, 0), Vector2(0, 0))
-        # 키가 눌렸을 때
-
+        renderer.draw_grid(SCREEN, 64, 64)
+        #renderer.put_pixel(SCREEN, (0, 255, 0), posx, posy)
+        
+        
+        deltaRot += deltaTime
+        matRotation.set_rotaition(deltaRot)
+        v1 = matRotation * v1
+        v2 = matRotation * v2
+        renderer.scan_line_segment(SCREEN, int(v1.x), int(v1.y), (0, 0, 0), int(v2.x), int(v2.y), (255, 0, 0))
 
         pygame.display.flip()
-        clock.tick(60)
+        
+        deltaTime = clock.tick(fps)/1000.0
+        #clock.tick(60)
         
 if __name__ == '__main__':
     main()
