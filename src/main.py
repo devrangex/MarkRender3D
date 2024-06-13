@@ -1,4 +1,5 @@
 import pygame
+import pygame.freetype
 from renderer.dd.vector2 import Vector2
 from renderer.renderer import Renderer
 from renderer.dd.matrix3 import Matrix3
@@ -16,6 +17,12 @@ def main():
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     pygame.display.set_caption("pygame test")
+    pygame.font.init()
+    #myfont = pygame.freetype.Font('Comic Sans MS', 30)
+    
+    #screen = pygame.display.set_mode((640, 480))
+    font = pygame.font.Font(pygame.font.get_default_font(), 36)
+
 
     clock = pygame.time.Clock()
 
@@ -69,22 +76,31 @@ def main():
                 if event.key == pygame.K_DOWN:
                     print("아래로 키 떼짐")
                 
+        deltaTime = clock.tick(fps)/1000.0
+        
         SCREEN.fill((255, 255, 255))
         
         renderer.draw_grid(SCREEN, 64, 64)
         #renderer.put_pixel(SCREEN, (0, 255, 0), posx, posy)
         
         
-        deltaRot += deltaTime
+        deltaRot += deltaTime * 180
         matRotation.set_rotaition(deltaRot)
-        v1 = matRotation * v1
-        v2 = matRotation * v2
-        renderer.scan_line_segment(SCREEN, int(v1.x), int(v1.y), (0, 0, 0), int(v2.x), int(v2.y), (255, 0, 0))
-
-        pygame.display.flip()
+        mv1 = matRotation * v1
+        mv2 = matRotation * v2
+        renderer.scan_line_segment(SCREEN, int(mv1.x), int(mv1.y), (0, 0, 0), int(mv2.x), int(mv2.y), (255, 0, 0))
         
-        deltaTime = clock.tick(fps)/1000.0
+        #myfont.render_to(SCREEN, (40, 350), "Hello World!", (0, 0, 0))
+        text_surface = font.render(str(deltaTime), True, (0, 0, 0))
+        SCREEN.blit(text_surface, dest=(0,0))
+        
+        text_surface = font.render(str(deltaRot), True, (0, 0, 0))
+        SCREEN.blit(text_surface, dest=(0,50))
+        
+        #myfont.render(str(deltaTime), False, (0, 0, 0))
+        #SCREEN.
         #clock.tick(60)
+        pygame.display.flip()
         
 if __name__ == '__main__':
     main()

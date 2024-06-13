@@ -96,8 +96,10 @@ class Renderer:
         
         v0 = self.screenCoordinates.trasnform(v0)
         v1 = self.screenCoordinates.trasnform(v1)
+        
+        pw, ph = abs(v1.x - v0.x), abs(v1.y - v0.y)
             
-        pygame.draw.rect(surface, color, [v0.x, v0.y, abs(v1.x - v0.x), abs(v1.y - v0.y)])
+        pygame.draw.rect(surface, color, [v0.x, v0.y - ph, pw, ph])
         
     def draw_grid(self, surface, v, h):
         self.horizontal = h
@@ -116,13 +118,15 @@ class Renderer:
         self.draw_line(surface, (255, 0, 0), Vector2(0, 0), Vector2(0, 5))
         self.draw_line(surface, (0, 0, 255), Vector2(5, 0), Vector2(0, 0))
     
-    def scan_line_segment(self, surface, x1, y1, c1, x2, y2, c2):
+    def scan_line_segment(self, surface, x1, y1, c1, x2, y2, c2, scaned = None):
         swap_xy = False
         flip_y = False
         
         # always scan convert from left to right
         if x1 > x2:
             x1, x2 = x2, x1
+            y1, y2 = y2, y1
+            c1, c2 = c2, c1
         
         # always scan convert from down to up
         # 4 > 3
@@ -161,8 +165,11 @@ class Renderer:
                 
             if flip_y:
                 Y = -Y
-                
-            self.put_pixel(surface, (color.r, color.g, color.b), X, Y)
+            
+            if scaned is None:
+                self.put_pixel(surface, (color.r, color.g, color.b), X, Y)
+            else:
+                scaned.append({X, Y, color})
             
             if horizontal == False:
                 if diagonal:
@@ -172,5 +179,8 @@ class Renderer:
                     y = int(round(yy))
                     
             color += col_step
+            
+    def fill_triangle(self, surface, x1, y1, c1, x2, y2, c2, x3, y3, c3):
+        pass
         
         
