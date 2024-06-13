@@ -1,29 +1,51 @@
 import math
+import numpy as np
 
 class Vector3:
-    def __init__(self, tx: float = 0, ty: float = 0, tz:float = 1, tw: float = 1) -> None:
-        self.x: float = tx
-        self.y: float = ty
-        self.z: float = tz
-        self.w: float = tw
+    def __init__(self, x: float = 0, y: float = 0, z:float = 0, w: float = 1) -> None:
+        self.pos = np.array([x, y, z, w])
+        
+    @property
+    def x(self):
+        return self.pos[0]
+    
+    @property
+    def y(self):
+        return self.pos[1]
+    
+    @property
+    def z(self):
+        return self.pos[2]
+    
+    @property
+    def w(self):
+        return self.pos[3]
         
     def __add__(self, other):
         return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
     
     def __sub__(self, other):
-        return Vector3(self.x - other.x, self.y - other.y, self.z - other.z)
+        return Vector3(self.x - other.x, self.y - other.y, self.z - other.z)    
     
-    def __mul__(self, scalar):
-        return Vector3(self.x * scalar, self.y * scalar, self.z * scalar)
+    def __mul__(self, rhs):
+        if isinstance(rhs, Vector3):
+            #내적
+            return self.dot(rhs)
+        else:
+            #상수배
+            return Vector3(self.x * rhs, self.y * rhs, self.z * rhs)
     
-    def dot(self, right):
-        return self.x * right.x + self.y * right.y + self.z * right.z
+    def __rmul__(self, rhs):
+        return self.dot(rhs)
     
-    def cross(self, right):
+    def dot(self, rhs):
+        return self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+    
+    def cross(self, rhs):
         return Vector3(
-            self.y * right.z - self.z * right.y,
-            self.z * right.x - self.x * right.z,
-            self.x * right.y - self.y * right.x
+            self.y * rhs.z - self.z * rhs.y,
+            self.z * rhs.x - self.x * rhs.z,
+            self.x * rhs.y - self.y * rhs.x
         )
         
     def magnitude(self):
@@ -31,14 +53,14 @@ class Vector3:
     
     def normalized(self):
         magnitude = self.magnitude()
-        self.x /= magnitude
-        self.y /= magnitude
-        self.z /= magnitude
+        self.pos[0] /= magnitude
+        self.pos[1] /= magnitude
+        self.pos[2] /= magnitude
     
     @staticmethod
-    def distance(a, b):
+    def distance(lhs, rhs):        
         # is this sqrt?
-        return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2) ** 0.5
+        return ((lhs.x - rhs.x) ** 2 + (lhs.y - rhs.y) ** 2 + (lhs.z - rhs.z) ** 2) ** 0.5
     
     @staticmethod
     def lerp(begin, end, ratio):
