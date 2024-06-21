@@ -38,13 +38,6 @@ class Matrix44:
         ]
         return self
     
-    # 11, 12, 13, 14
-    # 21, 22, 23, 24
-    # 31, 32, 33, 34
-    # 41, 42, 43, 44
-    def set_element(self, i, j, v):
-        self.elements[i - 1][j - 1] = v
-    
     def set_identity(self) -> None:        
         self.set()
     
@@ -53,10 +46,10 @@ class Matrix44:
         
         self.elements[0][3] = tx
         self.elements[1][3] = ty
-        self.elements[2][3] = tz
-        
+        self.elements[2][3] = tz        
+    
+    # z 축으로 회전한다.
     def set_rotaitionZByDeg(self, deg) -> None:
-        self.set_identity()
         
         # cos,  -sin,   0,      0
         # sin,  cos,    0,      0
@@ -74,7 +67,7 @@ class Matrix44:
         
         # basis 2
         self.elements[0][1] = -math.sin(rad)
-        self.elements[1][1] = math.cos(rad)    
+        self.elements[1][1] = math.cos(rad)        
         
     def set_rotaitionXByDeg(self, deg) -> None:
         self.set_identity()
@@ -110,7 +103,8 @@ class Matrix44:
         
         # basis 2
         self.elements[0][2] = math.sin(rad)
-        self.elements[2][2] = math.cos(rad)            
+        self.elements[2][2] = math.cos(rad)       
+        
     
     def set_scale(self, sx, sy, sz):
         self.set_identity()
@@ -159,18 +153,22 @@ class Matrix44:
         return Vector3(self.elements[row][0], self.elements[row][1], self.elements[row][2], self.elements[row][3])
     
     def get_column(self, column):
-        return Vector3(self.elements[0][column], self.elements[1][column], self.elements[2][column], self.elements[3][column])    
+        return Vector3(self.elements[0][column], self.elements[1][column], self.elements[2][column], self.elements[3][column])
     
     def vector4_multiplication(self, rhs):
         x = self.elements[0][0] * rhs.x + self.elements[0][1] * rhs.y + self.elements[0][2] * rhs.z + self.elements[0][3]
         y = self.elements[1][0] * rhs.x + self.elements[1][1] * rhs.y + self.elements[1][2] * rhs.z + self.elements[1][3]
         z = self.elements[2][0] * rhs.x + self.elements[2][1] * rhs.y + self.elements[2][2] * rhs.z + self.elements[2][3]
         w = self.elements[3][0] * rhs.x + self.elements[3][1] * rhs.y + self.elements[3][2] * rhs.z + self.elements[3][3]
+        # y = self._12 * rhs.x + self._22 * rhs.y + self._32 * rhs.z + self._42 * rhs.w
+        # z = self._13 * rhs.x + self._23 * rhs.y + self._33 * rhs.z + self._43 * rhs.w            
+        # w = self._14 * rhs.x + self._24 * rhs.y + self._34 * rhs.z + self._44 * rhs.w        
+        
+        #w = 
         
         if w == 0:
             w = 0.00000000001 
             
-        # for homogeneous devide
         invW = 1 / w
         
         return Vector3(x * invW, y * invW, z * invW, w * invW)
@@ -187,13 +185,27 @@ class Matrix44:
                     
             return out
                 
-        elif isinstance(rhs, Vector3):           
+        elif isinstance(rhs, Vector3):
             
+            # v1 = self.get_column(0) * rhs.x
+            # v2 = self.get_column(1) * rhs.y
+            # v3 = self.get_column(2) * rhs.z
+            # v4 = self.get_column(3) * rhs.w
+            
+            # v5 = v1 + v2 + v3 + v4
             # Matrix and Vector multiplication
             x = self.elements[0][0] * rhs.x + self.elements[0][1] * rhs.y + self.elements[0][2] * rhs.z + self.elements[0][3]
             y = self.elements[1][0] * rhs.x + self.elements[1][1] * rhs.y + self.elements[1][2] * rhs.z + self.elements[1][3]
             z = self.elements[2][0] * rhs.x + self.elements[2][1] * rhs.y + self.elements[2][2] * rhs.z + self.elements[2][3]
-            w = self.elements[3][0] * rhs.x + self.elements[3][1] * rhs.y + self.elements[3][2] * rhs.z + self.elements[3][3]            
+            w = self.elements[3][0] * rhs.x + self.elements[3][1] * rhs.y + self.elements[3][2] * rhs.z + self.elements[3][3]
+            # y = self._12 * rhs.x + self._22 * rhs.y + self._32 * rhs.z + self._42 * rhs.w
+            # z = self._13 * rhs.x + self._23 * rhs.y + self._33 * rhs.z + self._43 * rhs.w            
+            # w = self._14 * rhs.x + self._24 * rhs.y + self._34 * rhs.z + self._44 * rhs.w        
+            
+            #w = 
+            
+            #if w == 0:
+                #w = 0.00000000001 
             
             return Vector3(x, y, z, w)
         else:

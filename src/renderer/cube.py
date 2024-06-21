@@ -19,14 +19,15 @@ class Cube(GameObject):
         #self.matLocal.set_translation(10, 10, 10)
         
     def set_vertex_buffer(self):
-        self.vertex_buffer = [Vector3(-5, -5, 5),
-                                Vector3(-5, 5, 5),
-                                Vector3(5, 5, 5),
-                                Vector3(5, -5, 5),
-                                Vector3(-5, -5, -5),
-                                Vector3(-5, 5, -5),
-                                Vector3(5, 5, -5),
-                                Vector3(5, -5, -5)]
+        size = 1
+        self.vertex_buffer = [Vector3(-size, -size, size),
+                                Vector3(-size, size, size),
+                                Vector3(size, size, size),
+                                Vector3(size, -size, size),
+                                Vector3(-size, -size, -size),
+                                Vector3(-size, size, -size),
+                                Vector3(size, size, -size),
+                                Vector3(size, -size, -size)]
         self.vertex_size = 4
         
     def set_index_buffer(self):
@@ -65,16 +66,25 @@ class Cube(GameObject):
     def update(self, deltaTime):
         self.deltaRot += deltaTime * 45
         
+        matTranslate = Matrix44()
+        matTranslate.set_translation(0, 0, 100)
+        
         matRotY = Matrix44()
         matRotY.set_rotaitionYByDeg(self.deltaRot)
         
         matRotZ = Matrix44()
         matRotZ.set_rotaitionZByDeg(self.deltaRot)
         
-        matScale = Matrix44()
-        matScale.set_scale(1, 1, 1)
+        matRotX = Matrix44()
+        matRotX.set_rotaitionXByDeg(self.deltaRot)
         
-        self.matLocal = matRotY * matRotZ * matScale
+        matScale = Matrix44()
+        matScale.set_scale(5, 5, 5)
+        
+        #self.matLocal = matTranslate * matRotY * matRotZ * matScale
+        #self.matLocal = matTranslate * matScale
+        self.matLocal = matRotZ * matScale
+        #self.matLocal.set_identity()
         
     
     def draw(self, surface, renderer):
@@ -89,9 +99,9 @@ class Cube(GameObject):
             i2 = self.index_buffer[counter+1]
             i3 = self.index_buffer[counter+2]
             
-            v1 = self.vertex_buffer[i1]
-            v2 = self.vertex_buffer[i2]
-            v3 = self.vertex_buffer[i3]
+            p1 = self.vertex_buffer[i1]
+            p2 = self.vertex_buffer[i2]
+            p3 = self.vertex_buffer[i3]
             
             # u = v1 - v2
             # v = v1 - v3
@@ -101,13 +111,49 @@ class Cube(GameObject):
             
             # color = "gray"
             # dash: bool = False
-            # if(n.dot(f) > 0):
+            # if(n.dot(f) > 0):a
             #     color = "cyan"
             #     dash = True
+            
+            matView = renderer.get_main_camera().get_view_matrix()
+            matProj = renderer.get_main_camera().get_projection_matrix()
+            
+            # modeling matrix
+            matViewLocal = matView * self.matLocal
+            matProjViewLocal = matProj * matViewLocal
+            #p2 = self.matLocal * p2
+            #p3 = self.matLocal * p3
+            
+            # NDC 좌표로 변환
+            p1 = matProjViewLocal.vector4_multiplication(p1)
+            p2 = matProjViewLocal.vector4_multiplication(p2)
+            p3 = matProjViewLocal.vector4_multiplication(p3)
+            
+            # Screen 좌표로 변환
+            v1 = Vector3(p1.x * renderer.width * 0.5, p1.y * renderer.height * 0.5, p1.z)
+            v2 = Vector3(p2.x * renderer.width * 0.5, p2.y * renderer.height * 0.5, p2.z)
+            v3 = Vector3(p3.x * renderer.width * 0.5, p3.y * renderer.height * 0.5, p3.z)
+            
+            # v1 = renderer.screenCoordinates.trasnform(v1)
+            # v2 = renderer.screenCoordinates.trasnform(v2)
+            # v3 = renderer.screenCoordinates.trasnform(v3)
+            
+            
+            # projection matrix                        
+            #v1 = matProj * p1
+            #v2 = matProj * p2
+            #v3 = matProj * p3
 
-            v1 = renderer.matProj * self.matLocal * v1
-            v2 = renderer.matProj * self.matLocal * v2
-            v3 = renderer.matProj * self.matLocal * v3
+            #matWorldViewProj = matViewProj * self.matLocal
+            #matWorldViewProj = matViewProj
+            
+            # v1 = matWorldViewProj * p1
+            # v2 = matWorldViewProj * p2
+            # v3 = matWorldViewProj * p3
+            
+            # v1 = Vector3(v1.x / v1.w, v1.y / v1.w, v1.z / v1.w)
+            # v2 = Vector3(v2.x / v2.w, v2.y / v2.w, v2.z / v2.w)
+            # v3 = Vector3(v3.x / v3.w, v3.y / v3.w, v3.z / v3.w)
             
             renderer.fill_triangle(surface, int(v1.x), int(v1.y), (255, 0, 0), 
                                         int(v2.x), int(v2.y), (0, 255, 0),

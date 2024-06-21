@@ -48,7 +48,7 @@ class Matrix44:
     def set_identity(self) -> None:        
         self.set()
     
-    def set_translation(self, tx: float, ty: float, tz: float) -> None:        
+    def set_translation(self, tx: float, ty: float, tz: float) -> None:
         self.set_identity()
         
         self.elements[0][3] = tx
@@ -167,6 +167,7 @@ class Matrix44:
         z = self.elements[2][0] * rhs.x + self.elements[2][1] * rhs.y + self.elements[2][2] * rhs.z + self.elements[2][3]
         w = self.elements[3][0] * rhs.x + self.elements[3][1] * rhs.y + self.elements[3][2] * rhs.z + self.elements[3][3]
         
+        # smaller value
         if w == 0:
             w = 0.00000000001 
             
@@ -199,13 +200,13 @@ class Matrix44:
         else:
             raise TypeError("Unsupported multiplication type")
         
-    def __rmul__(self, rhs):
-        if isinstance(rhs, Matrix44):
+    def __rmul__(self, lhs):
+        if isinstance(lhs, Matrix44):
             out = Matrix44()
             for i in range(4):
                 for j in range(4):                    
-                    v1 = self.get_row(i)
-                    v2 = rhs.get_column(j)
+                    v1 = lhs.get_row(i)
+                    v2 = self.get_column(j)
                     # 내적으로 계산
                     out.elements[i][j] = v1 * v2
                     
@@ -213,8 +214,5 @@ class Matrix44:
         
         else:
             raise TypeError("Unsupported multiplication type")
-
-        # else:
-        #     raise TypeError("Unsupported multiplication type")
     
         

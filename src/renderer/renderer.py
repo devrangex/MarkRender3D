@@ -2,7 +2,9 @@ import pygame
 import numpy as np
 import math
 from renderer.dd.vector2 import Vector2
+from renderer.dd.vector3 import Vector3
 from renderer.dd.matrix44 import Matrix44
+from renderer.camera import Camera
 
 
 # 기저 벡터 축으로 변환
@@ -60,7 +62,9 @@ class ScreenCoordinates:
     def trasnform(self, input) -> Vector2:
         t0 = self.axis1 * input.x
         t1 = self.axis2 * input.y
-        return Vector2(t0.x + t1.x + self.origin.x, t0.y + t1.y + self.origin.y)
+        return Vector2(t0.x + t1.x + self.origin.x * 0.5, t0.y + t1.y + self.origin.y * 0.5)
+        
+        #return Vector2(input.x + self.origin.x * 0.5, input.y)
 
 # 렌더러 클래스
 class Renderer:
@@ -68,19 +72,23 @@ class Renderer:
         self.basis = Basis()
         
         # projection
-        self.near = 5
-        self.far = 1000
+        self.near = 5.5
+        self.far = 5000
         self.fov = 60
         self.width = width
         self.height = height
-        self.matProj = Matrix44()
-        self.matProj.set_projection(self.near, self.far, self.fov, self.width, self.height)
+        #self.matProj = Matrix44()
+        #self.matProj.set_projection(self.near, self.far, self.fov, self.width, self.height)
+        
+        self.mainCamera = Camera()
+        self.mainCamera.set_projection(self.near, self.far, self.fov, self.width, self.height)
+        self.mainCamera.localPosition = Vector3(0, 0, 400)
         
         
         # 픽셀 크기 10
         pixelSize = 5
         # 좌상단이 0, 0
-        self.screenCoordinates = ScreenCoordinates(Vector2(pixelSize, 0), Vector2(0, -pixelSize), Vector2(width * 0.5, height * 0.5))
+        self.screenCoordinates = ScreenCoordinates(Vector2(pixelSize, 0), Vector2(0, -pixelSize), Vector2(width, height))
         pass
     
     def update(self):
@@ -88,6 +96,9 @@ class Renderer:
     
     def draw(self):
         pass
+    
+    def get_main_camera(self):
+        return self.mainCamera
     
     def draw_line(self, surface, color, p0, p1):
         

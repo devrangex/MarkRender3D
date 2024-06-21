@@ -1,6 +1,8 @@
 import pygame
 import pygame.freetype
 from renderer.dd.vector2 import Vector2
+from renderer.dd.vector3 import Vector3
+
 from renderer.renderer import Renderer
 from renderer.dd.matrix3 import Matrix3
 from renderer.dd.matrix44 import Matrix44
@@ -9,24 +11,19 @@ from renderer.cube import Cube
 import numpy as np
 
 SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 640
+SCREEN_HEIGHT = 600
 
-def main():    
-
+def main():
     pygame.init()
-
-    SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    
+    SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))    
     
 
-    pygame.display.set_caption("pygame test")
+    pygame.display.set_caption("Mark Render 3D")
     pygame.font.init()
     #myfont = pygame.freetype.Font('Comic Sans MS', 30)
     
     #screen = pygame.display.set_mode((640, 480))
     font = pygame.font.Font(pygame.font.get_default_font(), 36)
-
-
     clock = pygame.time.Clock()
 
     playing = True
@@ -84,8 +81,12 @@ def main():
 
                 if event.key == pygame.K_UP:
                     print("위로 키 떼짐")
+                    localPos = renderer.mainCamera.localPosition
+                    renderer.mainCamera.localPosition = Vector3(localPos.x, localPos.y, localPos.z - 10)
                 if event.key == pygame.K_DOWN:
                     print("아래로 키 떼짐")
+                    localPos = renderer.mainCamera.localPosition
+                    renderer.mainCamera.localPosition = Vector3(localPos.x, localPos.y, localPos.z + 10)
                 
         deltaTime = clock.tick(fps)/1000.0
         
@@ -95,23 +96,23 @@ def main():
         #renderer.put_pixel(SCREEN, (0, 255, 0), posx, posy)
         
         
-        deltaRot += deltaTime * 45
-        matRotation.set_rotaition(deltaRot)
-        mv1 = matRotation * v1
-        mv2 = matRotation * v2
-        renderer.scan_line_segment(SCREEN, int(mv1.x), int(mv1.y), (0, 0, 0), int(mv2.x), int(mv2.y), (255, 0, 0))
+        #deltaRot += deltaTime * 45
+        #matRotation.set_rotaition(deltaRot)
+        #mv1 = matRotation * v1
+        #mv2 = matRotation * v2
+        #renderer.scan_line_segment(SCREEN, int(mv1.x), int(mv1.y), (0, 0, 0), int(mv2.x), int(mv2.y), (255, 0, 0))
         
-        vv1 = Vector2(20, 20)
-        vv2 = Vector2(-10, 10)
-        vv3 = Vector2(10, -20)
+        # vv1 = Vector2(20, 20)
+        # vv2 = Vector2(-10, 10)
+        # vv3 = Vector2(10, -20)
         
-        vv1 = matRotation * vv1
-        vv2 = matRotation * vv2
-        vv3 = matRotation * vv3
+        # vv1 = matRotation * vv1
+        # vv2 = matRotation * vv2
+        # vv3 = matRotation * vv3
         
-        renderer.fill_triangle(SCREEN, int(vv1.x), int(vv1.y), (255, 0, 0), 
-                                        int(vv2.x), int(vv2.y), (0, 255, 0),
-                                        int(vv3.x), int(vv3.y), (0, 0, 255))
+        # renderer.fill_triangle(SCREEN, int(vv1.x), int(vv1.y), (255, 0, 0), 
+        #                                 int(vv2.x), int(vv2.y), (0, 255, 0),
+        #                                 int(vv3.x), int(vv3.y), (0, 0, 255))
         
         
         cube.update(deltaTime)
