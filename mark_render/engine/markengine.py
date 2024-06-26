@@ -47,6 +47,7 @@ class MarkEngine:
         # self.screen2 = pygame.display.set_mode((self.width, self.height), display=1)
         
         self.screen = Screen('screen', 800, 600)
+        self.screen2 = Screen('screen2', 800, 600)
         
         self.running = True        
     
@@ -77,6 +78,7 @@ class MarkEngine:
     
     def render(self):
         self.screen.render()
+        self.screen2.render()
         # self.renderer.clear()
         
         # self.renderer.draw_color = (255, 255, 255, 255)

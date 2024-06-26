@@ -2,8 +2,11 @@ from mathmatic.vector2 import Vector2
 from geometry.basis import Basis
 from geometry.screencoordinator import ScreenCoordinator
 
-class Renderer:
-    def __init__(self, width, height, pixel_size = 1) -> None:
+class RenderObject:
+    def __init__(self, renderer, width, height, pixel_size = 1) -> None:
+        
+        self.renderer = renderer
+        
         # 축
         self.basis = Basis()
         
